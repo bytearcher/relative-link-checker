@@ -9,7 +9,10 @@ async function check(path: string) {
         errors.forEach((error) => {
             console.error(error.file, error.link);
         });
-        throw new Error("Invalid relative links found:")
+        // escape promise try catch rejected mechanics and force a real exception to be thrown
+        setImmediate(() => {
+            throw new Error("Invalid relative links found")
+        });
     } else {
         console.log('Everything ok');
     }
