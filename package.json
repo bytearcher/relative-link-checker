@@ -4,9 +4,11 @@
   "description": "",
   "main": "dist/js/src/index.js",
   "files": [
+    "bin",
     "src",
     "dist/js/src"
   ],
+  "bin": "bin/relative-link-checker",
   "dependencies": {
     "bluebird": "^3.4.1",
     "glob": "^7.0.5"
