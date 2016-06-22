@@ -12,7 +12,13 @@ or locally to be available in your package.json scripts
     npm install relative-link-checker --save-dev
     node_modules/.bin/relative-link-checker <root directory>
 
-### Usage example
+or in package.json along with other tests
+
+    ..
+    "test": "grunt test && relative-link-checker dist",
+    ..
+
+### Example output
 
     $ relative-link-checker dist
     Validating relative links in: dist
