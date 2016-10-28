@@ -1,18 +1,18 @@
 export function getReferencedURIs(html: string): string[] {
     // remove commented out code
-    html = html.replace(/<!--.*-->/gm, '');
+    html = html.replace(/<!--.*-->/gm, "");
 
     // find uris in src, href and such
-    var regexp = /<[^>]+(src|href)=("|')([^"']+)("|')/ig;
-    var m: any;
-    var uris: string[] = [];
+    let regexp = /<[^>]+(src|href)=("|')([^"']+)("|')/ig;
+    let m: any;
+    let uris: string[] = [];
     while ((m = regexp.exec(html)) !== null) {
         uris.push(m[3]);
     }
 
     // remove query params from uris
     uris = uris.map((uri) => {
-        return uri.replace(/\?.*$/, '');
+        return uri.replace(/\?.*$/, "");
     });
 
     // decode encoded ascii chars
@@ -26,10 +26,10 @@ export function getReferencedURIs(html: string): string[] {
 export function getRelativeURIs(uris: string[]): string[] {
     return uris.filter((uri) => {
         return !/^\/\//.test(uri) // skip urls starting '//'
-            && !/^[a-zA-Z]+:/.test(uri) // skip urls starting 'http:'
+            && !/^[a-zA-Z]+:/.test(uri); // skip urls starting 'http:'
     });
 }
 
 export function addIndexHtmlsToDirectoryURIs(uris: string[]): string[] {
-    return uris.map(uri => /\/$/.test(uri) ? uri + 'index.html' : uri);
+    return uris.map(uri => /\/$/.test(uri) ? uri + "index.html" : uri);
 }

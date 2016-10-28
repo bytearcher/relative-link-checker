@@ -1,14 +1,14 @@
-import path = require('path');
+import path = require("path");
 
 import debug = require("debug");
 
-var log: debug.Debugger = debug('relative-link-checker');
+const log: debug.IDebugger = debug("relative-link-checker");
 
-var bluebird = require('bluebird');
-var fs = bluebird.promisifyAll(require('fs'));
-var glob: (s: string) => Promise<string[]> = bluebird.promisify(require('glob'));
+const bluebird = require("bluebird");
+const fs = bluebird.promisifyAll(require("fs"));
+const glob: (s: string) => Promise<string[]> = bluebird.promisify(require("glob"));
 
-import HTMLUtil = require('./HTMLUtil');
+import HTMLUtil = require("./HTMLUtil");
 
 export interface ValidationError {
     file: string;
@@ -21,7 +21,7 @@ function isValidFileCheckFs(file: string): boolean {
     try {
         stat = fs.statSync(file);
     } catch (e) {
-        if (e.code === 'ENOENT') {
+        if (e.code === "ENOENT") {
             return false;
         }
         else {
@@ -31,7 +31,7 @@ function isValidFileCheckFs(file: string): boolean {
     return stat.isFile();
 }
 
-var isValidFileCache: Map<string, boolean> = new Map();
+let isValidFileCache: Map<string, boolean> = new Map();
 async function isValidFile(file: string): Promise<boolean> {
     if (!isValidFileCache.has(file)) {
         log(`cache miss: ${file}`);
@@ -44,13 +44,13 @@ async function isValidFile(file: string): Promise<boolean> {
 
 async function validateDirectory(dir: string) {
     function invalidDirectory() {
-        throw new Error(`Invalid directory: ${dir}`)
+        throw new Error(`Invalid directory: ${dir}`);
     }
     let stat: any;
     try {
         stat = await fs.statAsync(dir);
     } catch (e) {
-        if (e.code === 'ENOENT') {
+        if (e.code === "ENOENT") {
             invalidDirectory();
         }
     }
@@ -60,36 +60,36 @@ async function validateDirectory(dir: string) {
 }
 
 async function getRelativeReferences(file: string): Promise<string[]> {
-    var contents = await fs.readFileAsync(file, "utf8");
-    var referencedUris = HTMLUtil.getReferencedURIs(contents);
-    var relativeUris = HTMLUtil.getRelativeURIs(referencedUris);
-    var indexHtmlAugmented = HTMLUtil.addIndexHtmlsToDirectoryURIs(relativeUris);
+    let contents = await fs.readFileAsync(file, "utf8");
+    let referencedUris = HTMLUtil.getReferencedURIs(contents);
+    let relativeUris = HTMLUtil.getRelativeURIs(referencedUris);
+    let indexHtmlAugmented = HTMLUtil.addIndexHtmlsToDirectoryURIs(relativeUris);
     return indexHtmlAugmented;
 }
 
 export async function check(root: string): Promise<ValidationError[]> {
     await validateDirectory(root);
 
-    var files: string[] = await glob(path.join(root, "**/*.html"));
+    let files: string[] = await glob(path.join(root, "**/*.html"));
 
-    var errors: ValidationError[] = [];
+    let errors: ValidationError[] = [];
 
     await Promise.all(files.map(file => (async function () {
-        var references = await getRelativeReferences(file);
+        let references = await getRelativeReferences(file);
         await Promise.all(references.map(reference => (async function () {
 
-            var dirname = path.dirname(file);
-            var subdir = path.relative(root, dirname);
+            let dirname = path.dirname(file);
+            let subdir = path.relative(root, dirname);
 
-            var fileToBeFound: string;
+            let fileToBeFound: string;
             if (/^\//.test(reference)) {
                 fileToBeFound = path.join(root, reference.substr(1));
             } else {
                 fileToBeFound = path.join(root, subdir, reference);
             }
 
-            var isValid: boolean = await isValidFile(fileToBeFound);
-            log(`${path.relative(root, file)}: ${reference} (fileTobeFound: ${fileToBeFound} ${isValid ? 'OK' : 'MISSING'})`);
+            let isValid: boolean = await isValidFile(fileToBeFound);
+            log(`${path.relative(root, file)}: ${reference} (fileTobeFound: ${fileToBeFound} ${isValid ? "OK" : "MISSING"})`);
             if (!isValid) {
                 errors.push({
                     file: path.relative(root, file),
