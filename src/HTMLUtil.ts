@@ -1,14 +1,45 @@
+function pumpRegexpMatches(regexp: RegExp, text: string) {
+    let results: string[] = [];
+    let regexpInstance = new RegExp(regexp);
+    let match;
+    while (match = regexpInstance.exec(text)) {
+        results.push(match[0]);
+    }
+    return results;
+}
+
+function getTagsFromHtml(html: string): string[] {
+    return pumpRegexpMatches(/<[a-z][^>]+>/g, html);
+}
+
+function getAttributesFromTags(tag: string): string[] {
+    return pumpRegexpMatches(/\b\w+="[^"]+"/g, tag);
+}
+
+interface KeyValue {
+    key: string;
+    value: string;
+}
+
+function findHrefAndSrcAttributes(html: string): KeyValue[] {
+    let results: KeyValue[] = [];
+    getTagsFromHtml(html).forEach((tag) => {
+        getAttributesFromTags(tag).forEach((attribute) => {
+            let [key, value] = attribute.split("=");
+            value = value.substring(1, value.length - 1);
+            if (key === "src" || key === "href") {
+                results.push({ key, value });
+            }
+        });
+    });
+    return results;
+}
+
 export function getReferencedURIs(html: string): string[] {
     // remove commented out code
-    html = html.replace(/<!--.*-->/gm, "");
+    html = html.replace(/<!--([\S\s](?!-->))*[\S\s]-->/g, "");
 
-    // find uris in src, href and such
-    let regexp = /<[^>]+(src|href)=("|')([^"']+)("|')/ig;
-    let m: any;
-    let uris: string[] = [];
-    while ((m = regexp.exec(html)) !== null) {
-        uris.push(m[3]);
-    }
+    let uris: string[] = findHrefAndSrcAttributes(html).map(r => r.value);
 
     // remove query params from uris
     uris = uris.map((uri) => {
@@ -21,15 +52,4 @@ export function getReferencedURIs(html: string): string[] {
     });
 
     return uris;
-}
-
-export function getRelativeURIs(uris: string[]): string[] {
-    return uris.filter((uri) => {
-        return !/^\/\//.test(uri) // skip urls starting '//'
-            && !/^[a-zA-Z]+:/.test(uri); // skip urls starting 'http:'
-    });
-}
-
-export function addIndexHtmlsToDirectoryURIs(uris: string[]): string[] {
-    return uris.map(uri => /\/$/.test(uri) ? uri + "index.html" : uri);
 }

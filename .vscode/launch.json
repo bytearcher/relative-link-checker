@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "index.ts",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/src/index.ts",
+            "cwd": "${workspaceRoot}",
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/dist"
+        },
+        {
+            "name": "Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "dist/test/**/*Spec.js"
+            ],
+            "cwd": "${workspaceRoot}",
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/dist"
+        }
+    ]
+}

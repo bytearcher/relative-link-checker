@@ -1,21 +1,21 @@
 
 import RelativeLinkChecker = require("./RelativeLinkChecker");
+import format from "./format";
 
-async function check(path: string) {
-    console.log(`Validating relative links in: ${path}`);
-    let errors = await RelativeLinkChecker.check(path);
-    if (errors.length) {
-        console.error("Invalid relative links found:");
-        errors.forEach((error) => {
-            console.error(error.file, error.link);
-        });
-        // escape promise try catch rejected mechanics and force a real exception to be thrown
-        setImmediate(() => {
-            throw new Error("Invalid relative links found");
-        });
-    } else {
-        console.log("Everything ok");
+export async function check(path: string, domain?: string) {
+    let errors = await RelativeLinkChecker.check(path, domain);
+    if (errors.length > 0) {
+        throw new Error(format(errors));
     }
 }
 
-export = check;
+export async function checkCommandLine(path: string, domain?: string) {
+    console.log(`Validating relative links in: ${path}`);
+    try {
+        check(path, domain);
+        console.log("Everything ok");
+    } catch (e) {
+        console.error(e.message);
+        throw new Error("Validation failed.");
+    }
+}
