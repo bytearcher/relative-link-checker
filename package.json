@@ -2,6 +2,7 @@
   "name": "relative-link-checker",
   "version": "2.0.0",
   "description": "",
+  "repository": "bytearcher/relative-link-checker",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
   "files": [
